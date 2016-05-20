@@ -24,7 +24,7 @@ export default {
     }
   },
   ready: function () {
-    this.$http.jsonp('http://news-at.zhihu.com/api/4/start-image/1080*1776').then(function (response) {
+    this.$http.jsonp('/zhihudaily/api/4/news/latest').then(function (response) {
       console.log(response.ststus)
     })
   },
