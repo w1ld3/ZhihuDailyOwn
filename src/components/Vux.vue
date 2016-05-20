@@ -11,10 +11,9 @@
 <script>
 import Group from 'vux/components/group'
 import Cell from 'vux/components/cell'
-
-var Vue = require('vue')
-
-Vue.use(require('vue-resource'))
+import Vue from 'vue'
+import Resource from 'vue-resource'
+Vue.use(Resource)
 
 export default {
   data () {
@@ -24,8 +23,8 @@ export default {
     }
   },
   ready: function () {
-    this.$http.jsonp('/zhihudaily/api/4/news/latest').then(function (response) {
-      console.log(response.ststus)
+    this.$http.get('/zhihudaily/api/4/news/latest').then(function (response) {
+      console.log(response.status)
     })
   },
   components: {

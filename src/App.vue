@@ -1,15 +1,15 @@
 <template>
-  <vux></vux>
+  <news-cell></news-cell>
 </template>
 
 <script>
 import Hello from './components/Hello'
-import Vux from './components/Vux'
+import NewsCell from './components/NewsCell'
 
 export default {
   components: {
     Hello,
-    Vux
+    NewsCell
   }
 }
 </script>
