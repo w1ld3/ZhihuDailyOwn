@@ -1,7 +1,4 @@
 <template>
-  <h1>{{msg}}:{{name}}</h1>
-   <div v-link="{ path: '/storys' }">Go to News</div>
-   <div v-link="{ path: '/story/23232' }">Go to Story</div>
   <router-view></router-view>
 </template>
 
@@ -14,13 +11,6 @@ export default {
     return {
       msg: 'hello',
       name: 'andy'
-    }
-  },
-  events: {
-    'on-click-item': function (item) {
-      console.log(JSON.stringify(item))
-      this.$router.go({name: 'story', params: { id: item.id }})
-      // router.go({name: 'story', params: { id: item.id }})
     }
   }
   // components: {
