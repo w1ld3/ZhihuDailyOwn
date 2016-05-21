@@ -1,17 +1,34 @@
 <template>
-  <news-cell></news-cell>
+  <h1>{{msg}}:{{name}}</h1>
+   <div v-link="{ path: '/storys' }">Go to News</div>
+   <div v-link="{ path: '/story/23232' }">Go to Story</div>
+  <router-view></router-view>
 </template>
 
 <script>
-import Hello from './components/Hello'
-import NewsCell from './components/NewsCell'
+// import Hello from './components/Hello'
+// import NewsCell from './components/NewsCell'
 
 export default {
-  components: {
-    Hello,
-    NewsCell
+  data () {
+    return {
+      msg: 'hello',
+      name: 'andy'
+    }
+  },
+  events: {
+    'on-click-item': function (item) {
+      console.log(JSON.stringify(item))
+      this.$router.go({name: 'story', params: { id: item.id }})
+      // router.go({name: 'story', params: { id: item.id }})
+    }
   }
+  // components: {
+  //   Hello,
+  //   NewsCell
+  // }
 }
+
 </script>
 
 <style>
