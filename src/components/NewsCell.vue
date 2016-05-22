@@ -50,17 +50,42 @@ export default {
       // refresh
       this.$http.get('/zhihudaily/api/4/news/latest').then(function (response) {
         // this.data = response.data
+        let upId = this.data.stories[0].id
+        let storiesTmp = []
 
         let index = 0
-        for (index in response.data.stories) {
-          response.data.stories[index].src = response.data.stories[index].images[0]
-          response.data.stories[index].url = '/stories/' + response.data.stories[index].id
+        if (response.data.date === this.data.date) {
+          for (index in response.data.stories) {
+            if (response.data.stories[index].id === upId) {
+              break
+            }
+            response.data.stories[index].src = response.data.stories[index].images[0]
+            response.data.stories[index].url = '/stories/' + response.data.stories[index].id
+            storiesTmp.push(response.data.stories[index])
+          }
+        } else {
+          let j = 0
+          for (j in response.data.stories) {
+            response.data.stories[j].src = response.data.stories[j].images[0]
+            response.data.stories[j].url = '/stories/' + response.data.stories[j].id
+          }
+          storiesTmp = response.data.stories
+        }
+        // 添加新的stories
+        if (storiesTmp.length > 0) {
+          storiesTmp.reverse()
+          this.data.stories.reverse()
+          let i = 0
+          for (i in storiesTmp) {
+            this.data.stories.push(storiesTmp[i])
+          }
+          this.data.stories.reverse()
         }
         index = 0
         for (index in response.data.top_stories) {
           response.data.top_stories[index].img = response.data.top_stories[index].image
         }
-        this.data = response.data
+        this.data.top_stories = response.data.top_stories
       })
       setTimeout(function () {
         _this.$broadcast('pulldown:reset', uuid)
