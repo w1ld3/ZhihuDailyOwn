@@ -70,8 +70,8 @@
     "webpack-dev-middleware": "^1.4.0",
     "webpack-hot-middleware": "^2.6.0",
     "webpack-merge": "^0.8.3",
-	"vux": "0.0.117",
-	"vue-resource": "0.7.0",
-	"vue-router": "0.7.13"
+	  "vux": "0.0.117",
+	  "vue-resource": "0.7.0",
+	  "vue-router": "0.7.13"
   }
 }
