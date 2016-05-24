@@ -1,12 +1,12 @@
 <template>
-  <swiper :list='data.top_stories' height="200px" :auto.sync="action">
-    <p v-on:on-click-list-item="on-click-swiper-item">
+  <swiper :list="data[0]['top_stories']" height="200px" :auto.sync="action">
+    <!-- <p v-on:on-click-list-item="on-click-swiper-item">
       slot test
-    </p>
+    </p> -->
   </swiper>
   <scroller lock-x scrollbar-y use-pulldown use-pullup :pullup-status.sync="pullupStatus" height="auto" :pulldown-status.sync="pulldownStatus" @pulldown:loading="refresh" @pullup:loading="load">
     <!--content slot-->
-    <panel :list='data.stories'></panel>
+    <stories :stories-data="data"></stories>
     <!--pulldown slot-->
     <div slot="pulldown" class="xs-plugin-pulldown-container xs-plugin-pulldown-down" style="position: absolute; width: 100%; height: 60px; line-height: 60px; top: -60px; text-align: center;">
       <span v-show="pulldownStatus === 'default'"></span>
@@ -20,15 +20,16 @@
       <span v-show="pullupStatus === 'loading'"><spinner type="ios-small"></spinner></span>
     </div>
   </scroller>
-
+  <loading :show="showLoading" :text="loadingText"></loading>
 </template>
 
 <script>
-import Panel from 'vux/components/panel'
 import Swiper from 'vux/components/swiper'
 import SwiperItem from 'vux/components/swiper-item'
 import Scroller from 'vux/components/scroller'
 import Spinner from 'vux/components/spinner'
+import Loading from 'vux/components/loading'
+import Stories from './stories/stories'
 import Vue from 'vue'
 import Resource from 'vue-resource'
 
@@ -37,11 +38,13 @@ Vue.use(Resource)
 export default {
   data () {
     return {
-      data: {},
-      action: true,
+      data: [],
       currentNewsDate: '0',
+      action: true,
       pulldownStatus: 'default',
-      pullupStatus: 'default'
+      pullupStatus: 'default',
+      showLoading: false,
+      loadingText: 'loading..'
     }
   },
   methods: {
@@ -49,43 +52,24 @@ export default {
       const _this = this
       // refresh
       this.$http.get('/zhihudaily/api/4/news/latest').then(function (response) {
-        // this.data = response.data
-        let upId = this.data.stories[0].id
-        let storiesTmp = []
-
+        // backend proxy so get a 200 OK not 304 Not Modified
+        // console.log(response.status)
         let index = 0
-        if (response.data.date === this.data.date) {
-          for (index in response.data.stories) {
-            if (response.data.stories[index].id === upId) {
-              break
-            }
-            response.data.stories[index].src = response.data.stories[index].images[0]
-            response.data.stories[index].url = '/stories/' + response.data.stories[index].id
-            storiesTmp.push(response.data.stories[index])
-          }
+        if (response.data.date === this.data[0].date) {
+          this.data.shift()
         } else {
-          let j = 0
-          for (j in response.data.stories) {
-            response.data.stories[j].src = response.data.stories[j].images[0]
-            response.data.stories[j].url = '/stories/' + response.data.stories[j].id
-          }
-          storiesTmp = response.data.stories
+          this.currentNewsDate = response.data.date
         }
-        // 添加新的stories
-        if (storiesTmp.length > 0) {
-          storiesTmp.reverse()
-          this.data.stories.reverse()
-          let i = 0
-          for (i in storiesTmp) {
-            this.data.stories.push(storiesTmp[i])
-          }
-          this.data.stories.reverse()
+
+        for (index in response.data.stories) {
+          response.data.stories[index].src = response.data.stories[index].images[0]
+          response.data.stories[index].url = '/stories/' + response.data.stories[index].id
         }
         index = 0
         for (index in response.data.top_stories) {
           response.data.top_stories[index].img = response.data.top_stories[index].image
         }
-        this.data.top_stories = response.data.top_stories
+        this.data.unshift(response.data)
       })
       setTimeout(function () {
         _this.$broadcast('pulldown:reset', uuid)
@@ -100,12 +84,8 @@ export default {
         for (index in response.data.stories) {
           response.data.stories[index].src = response.data.stories[index].images[0]
           response.data.stories[index].url = '/stories/' + response.data.stories[index].id
-          this.data.stories.push(response.data.stories[index])
         }
-        index = 0
-        for (index in response.data.top_stories) {
-          response.data.top_stories[index].img = response.data.top_stories[index].image
-        }
+        this.data.push(response.data)
       })
       setTimeout(function () {
         _this.$broadcast('pullup:reset', uuid)
@@ -124,22 +104,26 @@ export default {
       for (index in response.data.top_stories) {
         response.data.top_stories[index].img = response.data.top_stories[index].image
       }
-      this.data = response.data
+      this.data.push(response.data)
       this.currentNewsDate = response.data.date
     })
   },
   components: {
-    Panel,
     Swiper,
     SwiperItem,
     Scroller,
-    Spinner
+    Spinner,
+    Loading,
+    Stories
   },
   events: {
     'on-click-item': function (item) {
-      console.log(JSON.stringify(item))
-      this.$router.go({name: 'story', params: { id: item.id }})
-      // router.go({name: 'story', params: { id: item.id }})
+      const self = this
+      self.showLoading = true
+      setTimeout(function () {
+        self.showLoading = false
+        self.$router.go({name: 'story', params: { id: item.id }})
+      }, 200)
     },
     'on-click-swiper-item': function (swiperItem) {
       console.log(swiperItem)

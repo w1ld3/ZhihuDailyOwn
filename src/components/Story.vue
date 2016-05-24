@@ -1,25 +1,66 @@
 <template>
-  <div class="wrap-container">
-    <div class="img-wrap">
-      <img class="headline-img" :src="data.image" alt="main Picture"/>
-      <h1 class="headline-title">{{data.title}}</h1>
-      <span class="img-source">图片: {{data.image_source}}</span>
+  <tabbar>
+    <tabbar-item>
+      <span slot="label" class="icon icon-back"></span>
+    </tabbar-item>
+    <tabbar-item>
+      <span slot="label" class="icon icon-unfold"></span>
+    </tabbar-item>
+    <tabbar-item>
+      <span slot="label" class="icon icon-down"></span>
+    </tabbar-item>
+    <tabbar-item>
+      <span slot="label" class="icon icon-xinxi"></span>
+      <!-- <span slot="label">News</span> -->
+    </tabbar-item>
+  </tabbar>
+  <scroller lock-x scrollbar-y use-pulldown use-pullup :pullup-status.sync="pullupStatus" :height="swiperHeight" :pulldown-status.sync="pulldownStatus" @pulldown:loading="refresh" @pullup:loading="load">
+    <div class="wrap-container">
+      <div class="img-wrap">
+        <img class="headline-img" :src="data.image" alt="main Picture"/>
+        <h1 class="headline-title">{{data.title}}</h1>
+        <span class="img-source">图片: {{data.image_source}}</span>
+      </div>
+      <div id='body'>
+      </div>
     </div>
-    <div id='body'>
+    <!--pulldown slot-->
+    <div slot="pulldown" class="xs-plugin-pulldown-container xs-plugin-pulldown-down" style="position: absolute; width: 100%; height: 60px; line-height: 60px; top: -60px; text-align: center;">
+      <span v-show="pulldownStatus === 'default'"></span>
+      <span class="pulldown-arrow" v-show="pulldownStatus === 'down' || pulldownStatus === 'up'" :class="{'rotate': pulldownStatus === 'up'}">↓</span>
+      <span v-show="pulldownStatus === 'loading'"><spinner type="ios-small"></spinner></span>
     </div>
-  </div>
+    <!--pullup slot-->
+    <div slot="pullup" class="xs-plugin-pullup-container xs-plugin-pullup-up" style="position: absolute; width: 100%; height: 40px; line-height: 40px; bottom: -40px; text-align: center;">
+      <span v-show="pullupStatus === 'default'"></span>
+      <span class="pullup-arrow" v-show="pullupStatus === 'down' || pullupStatus === 'up'" :class="{'rotate': pullupStatus === 'up'}">↑</span>
+      <span v-show="pullupStatus === 'loading'"><spinner type="ios-small"></spinner></span>
+    </div>
+  </scroller>
+  <loading :show="showLoading" :text="loadingText"></loading>
 </template>
 
 <script>
 import Vue from 'vue'
 import Resource from 'vue-resource'
+import Tabbar from './tabbar/tabbar'
+import TabbarItem from './tabbar/tabbar-item'
+// import TabbarItem from 'vux/components/tabbar-item'
+import Scroller from 'vux/components/scroller'
+import Spinner from 'vux/components/spinner'
+import Loading from 'vux/components/loading'
 Vue.use(Resource)
 
 export default {
   data () {
     return {
       data: {},
-      id: this.$route.params.id
+      id: this.$route.params.id,
+      pulldownStatus: 'default',
+      pullupStatus: 'default',
+      showLoading: false,
+      loadingText: 'loading..',
+      swiperHeight: ''
     }
   },
   ready: function () {
@@ -28,12 +69,53 @@ export default {
       let body = document.getElementById('body')
       body.innerHTML = this.data.body
     })
+    this.swiperHeight = document.body.offsetHeight - 41 + 'px'
+  },
+  methods: {
+    refresh: function (uuid) {
+      const _this = this
+      console.log('refresh')
+      setTimeout(function () {
+        _this.$broadcast('pulldown:reset', uuid)
+      }, 2000)
+    },
+    load: function (uuid) {
+      const _this = this
+      console.log('load')
+      setTimeout(function () {
+        _this.$broadcast('pullup:reset', uuid)
+        _this.$broadcast('scroller:reset', uuid)
+      }, 2000)
+    }
+  },
+  components: {
+    Tabbar,
+    TabbarItem,
+    Scroller,
+    Spinner,
+    Loading
+  },
+  events: {
+    'on-tabbar-item-click': function (index) {
+      console.log(index)
+      switch (index) {
+        case '0': {
+          const self = this
+          self.showLoading = true
+          setTimeout(function () {
+            self.showLoading = false
+            self.$router.go({path: '/'})
+          }, 200)
+        }
+      }
+    }
   }
 }
 </script>
 
 <style>
 @import '~vux/vux.css';
+@import "../assets/fonts/iconfont.css";
 
 .wrap-container{
   max-width: 600px;
@@ -162,5 +244,23 @@ blockquote{
   -webkit-margin-after: 1em;
   -webkit-margin-start: 40px;
   -webkit-margin-end: 40px;
+}
+i.icon {
+    display: inline-block;
+    vertical-align: middle;
+    background-size: 100% auto;
+    background-position: center;
+    background-repeat: no-repeat;
+    font-style: normal;
+    position: relative;
+}
+.rotate {
+  transform: rotate(-180deg);
+}
+.pulldown-arrow {
+  display: inline-block;
+  transition: all linear 0.2s;
+  color: #666;
+  font-size: 25px;
 }
 </style>

@@ -13,10 +13,6 @@ export default {
       name: 'andy'
     }
   }
-  // components: {
-  //   Hello,
-  //   NewsCell
-  // }
 }
 
 </script>
