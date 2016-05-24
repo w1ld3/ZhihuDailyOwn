@@ -1,7 +1,7 @@
 <template>
   <div v-for="dayStories in storiesData">
     <div class="date-divider">
-    {{dayStories.date}}
+    {{dayStories.dateStr}}
     </div>
     <panel :list='dayStories.stories' style="margin-top: 0;"></panel>
   </div>

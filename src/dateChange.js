@@ -1,28 +1,26 @@
 export default function dateChange (date) {
-  let dateTmp = new Date()
   let year = date.substr(0, 4)
   let month = date.substr(4, 2)
   let day = date.substr(6, 2)
-
-  dateTmp.format = function (fmt) {
-    let year = this.getFullYear()
-    let month = this.getMonth() + 1
-
-    fmt = fmt.replace('yyyy', year)
-    fmt = fmt.replace('yy', year % 100)
-    fmt = fmt.replace('MM', fix(month))
-    fmt = fmt.replace('dd', fix(this.getDate()))
-    fmt = fmt.replace('hh', fix(this.getHours()))
-    fmt = fmt.replace('mm', fix(this.getMinutes()))
-    return fmt
-    function fix (n) {
-      return n < 10 ? '0' + n : n
-    }
+  let newDate = new Date()
+  newDate.setFullYear(year, month - 1, day)
+  let dateStr = month + '月' + day + '日 星期'
+  switch (newDate.getDay()) {
+    case 0: dateStr += '一'
+      break
+    case 1: dateStr += '二'
+      break
+    case 2: dateStr += '三'
+      break
+    case 3: dateStr += '四'
+      break
+    case 4: dateStr += '五'
+      break
+    case 5: dateStr += '六'
+      break
+    case 6: dateStr += '七'
+      break
+    default: dateStr += '系统错误'
   }
-
-  dateTmp.setFullYear(year, month - 1, day - 1)
-  console.log(dateTmp.toLocaleString())
-  let outStr = dateTmp.format('yyyyMMdd')
-  console.log(outStr)
-  return outStr
+  return dateStr
 }

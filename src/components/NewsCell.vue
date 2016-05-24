@@ -1,8 +1,5 @@
 <template>
-  <swiper :list="data[0]['top_stories']" height="200px" :auto.sync="action">
-    <!-- <p v-on:on-click-list-item="on-click-swiper-item">
-      slot test
-    </p> -->
+  <swiper :list="topStories" height="200px" :auto.sync="action">
   </swiper>
   <scroller lock-x scrollbar-y use-pulldown use-pullup :pullup-status.sync="pullupStatus" height="auto" :pulldown-status.sync="pulldownStatus" @pulldown:loading="refresh" @pullup:loading="load">
     <!--content slot-->
@@ -25,6 +22,7 @@
 
 <script>
 import Swiper from 'vux/components/swiper'
+// import Swiper from './swiper/swiper'
 import SwiperItem from 'vux/components/swiper-item'
 import Scroller from 'vux/components/scroller'
 import Spinner from 'vux/components/spinner'
@@ -32,6 +30,7 @@ import Loading from 'vux/components/loading'
 import Stories from './stories/stories'
 import Vue from 'vue'
 import Resource from 'vue-resource'
+import DateChange from '../dateChange.js'
 
 Vue.use(Resource)
 
@@ -40,6 +39,7 @@ export default {
     return {
       data: [],
       currentNewsDate: '0',
+      topStories: [],
       action: true,
       pulldownStatus: 'default',
       pullupStatus: 'default',
@@ -59,6 +59,7 @@ export default {
           this.data.shift()
         } else {
           this.currentNewsDate = response.data.date
+          response.data.dateStr = DateChange(response.data.date)
         }
 
         for (index in response.data.stories) {
@@ -70,6 +71,7 @@ export default {
           response.data.top_stories[index].img = response.data.top_stories[index].image
         }
         this.data.unshift(response.data)
+        this.topStories = response.data.top_stories
       })
       setTimeout(function () {
         _this.$broadcast('pulldown:reset', uuid)
@@ -80,6 +82,7 @@ export default {
       this.$http.get('/zhihudaily/api/4/news/before/' + this.currentNewsDate).then(function (response) {
         // this.data = response.data
         this.currentNewsDate = response.data.date
+        response.data.dateStr = DateChange(response.data.date)
         let index = 0
         for (index in response.data.stories) {
           response.data.stories[index].src = response.data.stories[index].images[0]
@@ -95,6 +98,7 @@ export default {
   ready: function () {
     this.$http.get('/zhihudaily/api/4/news/latest').then(function (response) {
       // this.data = response.data
+      response.data.dateStr = DateChange(response.data.date)
       let index = 0
       for (index in response.data.stories) {
         response.data.stories[index].src = response.data.stories[index].images[0]
@@ -106,6 +110,7 @@ export default {
       }
       this.data.push(response.data)
       this.currentNewsDate = response.data.date
+      this.topStories = response.data.top_stories
     })
   },
   components: {
