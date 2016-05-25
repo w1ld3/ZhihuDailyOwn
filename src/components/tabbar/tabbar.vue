@@ -1,5 +1,5 @@
 <template>
-  <div class="weui_tabbar">
+  <div class="weui_tabbar stay">
     <slot></slot>
   </div>
 </template>
@@ -24,3 +24,10 @@ export default {
   }
 }
 </script>
+<style>
+.stay{
+  position: fixed;
+  bottom: 0;
+  z-index: 1;
+}
+</style>

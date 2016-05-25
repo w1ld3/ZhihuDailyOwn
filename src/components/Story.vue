@@ -60,7 +60,7 @@ export default {
       pullupStatus: 'default',
       showLoading: false,
       loadingText: 'loading..',
-      swiperHeight: ''
+      swiperHeight: 'auto'
     }
   },
   ready: function () {
@@ -69,7 +69,7 @@ export default {
       let body = document.getElementById('body')
       body.innerHTML = this.data.body
     })
-    this.swiperHeight = document.body.offsetHeight - 41 + 'px'
+    // this.swiperHeight = document.body.offsetHeight - 41 + 'px'
   },
   methods: {
     refresh: function (uuid) {
@@ -97,7 +97,6 @@ export default {
   },
   events: {
     'on-tabbar-item-click': function (index) {
-      console.log(index)
       switch (index) {
         case '0': {
           const self = this
@@ -110,7 +109,6 @@ export default {
   },
   route: {
     data: function (transition) {
-      console.log('router data 钩子 ')
       this.showLoading = true
       setTimeout(function () {
         transition.next({

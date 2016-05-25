@@ -5,10 +5,6 @@ function setSessionStorage (key, value = {}) {
     console.log('Doesn\'t support SessionStorage.')
   }
   let storage = window.sessionStorage
-  if (storage[key]) {
-    storage.removeItem(key)
-    console.log('remove old item first')
-  }
   storage.setItem(key, JSON.stringify(value))
 }
 

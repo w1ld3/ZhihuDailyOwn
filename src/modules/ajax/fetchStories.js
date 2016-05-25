@@ -31,7 +31,6 @@ export default function fetchStories (self, method = 'latest') {
     self.data.push(response.data)
     removeSessionStorage('storiesData')
     setSessionStorage('storiesData', self.data)
-    self.sessionStorage = true
     self.currentNewsDate = response.data.date
     self.topStories = self.data[0].top_stories
   })

@@ -31,7 +31,6 @@ import Stories from './stories/stories'
 import Vue from 'vue'
 import Resource from 'vue-resource'
 import fetchStories from '../modules/ajax/fetchStories.js'
-import getSessionStorage from '../modules/sessionStorage/sessionStorage.js'
 Vue.use(Resource)
 
 export default {
@@ -40,7 +39,6 @@ export default {
       data: [],
       currentNewsDate: '0',
       topStories: [],
-      sessionStorage: false,
       action: true,
       pulldownStatus: 'default',
       pullupStatus: 'default',
@@ -65,11 +63,17 @@ export default {
     }
   },
   ready: function () {
-    if (!this.sessionStorage) {
-      const self = this
-      fetchStories(self)
+    if (window.sessionStorage.getItem('storiesData')) {
+      // console.log('get from sessionStorage')
+      this.data = JSON.parse(window.sessionStorage.getItem('storiesData'))
+      this.currentNewsDate = this.data[0].date
+      this.topStories = this.data[0].top_stories
+      // window.sessionStorage.setItem('scroll', 0)
     } else {
-      this.data = getSessionStorage('storiesData')
+      const self = this
+      console.log(self)
+      fetchStories(self)
+      // console.log('get from intenert')
     }
   },
   components: {
@@ -83,6 +87,7 @@ export default {
   events: {
     'on-click-item': function (item) {
       const self = this
+      window.sessionStorage.setItem('scroll', window.scrollY)
       setTimeout(function () {
         self.$router.go({name: 'story', params: { id: item.id }})
       }, 200)
@@ -97,9 +102,13 @@ export default {
   },
   route: {
     data: function (transition) {
-      console.log('router data 钩子 ')
       this.showLoading = true
       setTimeout(function () {
+        let y = window.sessionStorage.getItem('scroll')
+        // if (window.scrollTo) {
+        //   console.log(y)
+        // }
+        window.scroll(0, y)
         transition.next({
           showLoading: false
         })
