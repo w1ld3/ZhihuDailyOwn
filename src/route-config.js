@@ -21,7 +21,8 @@ export function configRouter (router) {
   // 1. return a boolean
   // 2. return a Promise that resolves to a boolean
   // 3. call transition.next() or transition.abort()
-  // router.beforeEach((transition) => {
-  //   console.log(transition)
-  // })
+  router.beforeEach((transition) => {
+    // console.log(JSON.stringify(transition.to))
+    transition.next()
+  })
 }

@@ -30,8 +30,8 @@ import Loading from 'vux/components/loading'
 import Stories from './stories/stories'
 import Vue from 'vue'
 import Resource from 'vue-resource'
-import DateChange from '../dateChange.js'
-
+import fetchStories from '../modules/ajax/fetchStories.js'
+import getSessionStorage from '../modules/sessionStorage/sessionStorage.js'
 Vue.use(Resource)
 
 export default {
@@ -40,6 +40,7 @@ export default {
       data: [],
       currentNewsDate: '0',
       topStories: [],
+      sessionStorage: false,
       action: true,
       pulldownStatus: 'default',
       pullupStatus: 'default',
@@ -49,69 +50,27 @@ export default {
   },
   methods: {
     refresh: function (uuid) {
-      const _this = this
-      // refresh
-      this.$http.get('/zhihudaily/api/4/news/latest').then(function (response) {
-        // backend proxy so get a 200 OK not 304 Not Modified
-        // console.log(response.status)
-        let index = 0
-        if (response.data.date === this.data[0].date) {
-          this.data.shift()
-        } else {
-          this.currentNewsDate = response.data.date
-          response.data.dateStr = DateChange(response.data.date)
-        }
-
-        for (index in response.data.stories) {
-          response.data.stories[index].src = response.data.stories[index].images[0]
-          response.data.stories[index].url = '/stories/' + response.data.stories[index].id
-        }
-        index = 0
-        for (index in response.data.top_stories) {
-          response.data.top_stories[index].img = response.data.top_stories[index].image
-        }
-        this.data.unshift(response.data)
-        this.topStories = response.data.top_stories
-      })
+      const self = this
+      fetchStories(self)
       setTimeout(function () {
-        _this.$broadcast('pulldown:reset', uuid)
+        self.$broadcast('pulldown:reset', uuid)
       }, 2000)
     },
     load: function (uuid) {
-      const _this = this
-      this.$http.get('/zhihudaily/api/4/news/before/' + this.currentNewsDate).then(function (response) {
-        // this.data = response.data
-        this.currentNewsDate = response.data.date
-        response.data.dateStr = DateChange(response.data.date)
-        let index = 0
-        for (index in response.data.stories) {
-          response.data.stories[index].src = response.data.stories[index].images[0]
-          response.data.stories[index].url = '/stories/' + response.data.stories[index].id
-        }
-        this.data.push(response.data)
-      })
+      const self = this
+      fetchStories(self, 'loadOld')
       setTimeout(function () {
-        _this.$broadcast('pullup:reset', uuid)
+        self.$broadcast('pullup:reset', uuid)
       }, 2000)
     }
   },
   ready: function () {
-    this.$http.get('/zhihudaily/api/4/news/latest').then(function (response) {
-      // this.data = response.data
-      response.data.dateStr = DateChange(response.data.date)
-      let index = 0
-      for (index in response.data.stories) {
-        response.data.stories[index].src = response.data.stories[index].images[0]
-        response.data.stories[index].url = '/stories/' + response.data.stories[index].id
-      }
-      index = 0
-      for (index in response.data.top_stories) {
-        response.data.top_stories[index].img = response.data.top_stories[index].image
-      }
-      this.data.push(response.data)
-      this.currentNewsDate = response.data.date
-      this.topStories = response.data.top_stories
-    })
+    if (!this.sessionStorage) {
+      const self = this
+      fetchStories(self)
+    } else {
+      this.data = getSessionStorage('storiesData')
+    }
   },
   components: {
     Swiper,
@@ -124,14 +83,27 @@ export default {
   events: {
     'on-click-item': function (item) {
       const self = this
-      self.showLoading = true
       setTimeout(function () {
-        self.showLoading = false
         self.$router.go({name: 'story', params: { id: item.id }})
       }, 200)
     },
     'on-click-swiper-item': function (swiperItem) {
+      // no function
       console.log(swiperItem)
+    },
+    'loading': function () {
+      this.showLoading = true
+    }
+  },
+  route: {
+    data: function (transition) {
+      console.log('router data 钩子 ')
+      this.showLoading = true
+      setTimeout(function () {
+        transition.next({
+          showLoading: false
+        })
+      }, 100)
     }
   }
 }

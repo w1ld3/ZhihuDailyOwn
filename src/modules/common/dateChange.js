@@ -6,19 +6,19 @@ export default function dateChange (date) {
   newDate.setFullYear(year, month - 1, day)
   let dateStr = month + '月' + day + '日 星期'
   switch (newDate.getDay()) {
-    case 0: dateStr += '一'
+    case 0: dateStr += '日'
       break
-    case 1: dateStr += '二'
+    case 1: dateStr += '一'
       break
-    case 2: dateStr += '三'
+    case 2: dateStr += '二'
       break
-    case 3: dateStr += '四'
+    case 3: dateStr += '三'
       break
-    case 4: dateStr += '五'
+    case 4: dateStr += '四'
       break
-    case 5: dateStr += '六'
+    case 5: dateStr += '五'
       break
-    case 6: dateStr += '七'
+    case 6: dateStr += '六'
       break
     default: dateStr += '系统错误'
   }

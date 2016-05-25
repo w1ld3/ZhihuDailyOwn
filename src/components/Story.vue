@@ -101,13 +101,22 @@ export default {
       switch (index) {
         case '0': {
           const self = this
-          self.showLoading = true
           setTimeout(function () {
-            self.showLoading = false
             self.$router.go({path: '/'})
           }, 200)
         }
       }
+    }
+  },
+  route: {
+    data: function (transition) {
+      console.log('router data 钩子 ')
+      this.showLoading = true
+      setTimeout(function () {
+        transition.next({
+          showLoading: false
+        })
+      }, 100)
     }
   }
 }
